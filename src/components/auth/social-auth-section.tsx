@@ -1,22 +1,32 @@
 "use client"
 
 import { useState } from "react"
+import { signIn } from "next-auth/react"
+import { toast } from "sonner"
 
 import { SocialAuthButton } from "./social-auth-button"
 import { GoogleIcon } from "@/components/icons/google"
-import { AppleIcon } from "@/components/icons/apple"
+import { GithubIcon } from "@/components/icons/github"
 
-type Provider = "google" | "apple"
+type Provider = "google" | "github"
 
 export function SocialAuthSection() {
     const [isLoading, setIsLoading] = useState<Provider | null>(null)
 
-    async function signInWith(provider: "google" | "apple") {
+    async function signInWith(provider: "google" | "github") {
         if (isLoading) return
 
-        setIsLoading(provider)
-        await new Promise(resolve => setTimeout(resolve, 2000))
-        setIsLoading(null)
+        try {
+            setIsLoading(provider)
+            const response = await signIn(provider, { callbackUrl: "/home" })
+            setIsLoading(null)
+    
+            if (response?.error) {
+                return toast.error(response.error)
+            }
+        } catch {
+            toast.error("Unknown error. Please try again later.")
+        }
     }
 
     return (
@@ -27,10 +37,10 @@ export function SocialAuthSection() {
                 Continue with Google
             </SocialAuthButton>
 
-            <SocialAuthButton onClick={() => signInWith("apple")} disabled={isLoading == "apple"}>
-                <AppleIcon />
+            <SocialAuthButton onClick={() => signInWith("github")} disabled={isLoading == "github"}>
+                <GithubIcon />
 
-                Continue with Apple
+                Continue with GitHub
             </SocialAuthButton>
         </div>
     )
