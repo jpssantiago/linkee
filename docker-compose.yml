@@ -1,0 +1,9 @@
+services:
+  linkeedb:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=linkee
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
